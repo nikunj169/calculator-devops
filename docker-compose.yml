@@ -11,6 +11,7 @@ services:
     environment:
       SERVER_PORT: "8080"
       SPRING_APPLICATION_NAME: calculator
+      APP_BUILD: ${IMAGE_TAG:-latest}
       JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError"
       TZ: Asia/Kolkata
     expose:
