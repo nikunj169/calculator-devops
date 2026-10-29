@@ -1,0 +1,39 @@
+digraph pipeline {
+  rankdir=TB; bgcolor="white"; pad=0.2; nodesep=0.3; ranksep=0.4; newrank=true;
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, color="#555555", fillcolor="#f2f2f2"];
+  edge [fontname="Helvetica", fontsize=9, color="#555555"];
+
+  dev [label="Developer\nfeature branch → PR → main", fillcolor="#e8f0fe"];
+  gh  [label="GitHub\nnikunj169/calculator-devops", fillcolor="#e8f0fe"];
+
+  subgraph cluster_j {
+    label="Jenkins (declarative Jenkinsfile)"; fontname="Helvetica-Bold"; fontsize=11; style="rounded,dashed"; color="#888888";
+    co [label="Checkout\ncheckout scm"];
+    bu [label="Build\nmvn clean package\n-DskipTests"];
+    te [label="Test\nmvn test\nJUnit report"];
+    db [label="Docker Build\n:BUILD_NUMBER\n:latest"];
+    pu [label="Push\nDocker Hub\n(credentials store)"];
+    de [label="Deploy\ndocker compose\nup -d --wait\n+ health check"];
+    co -> bu -> te -> db -> pu -> de; {rank=same; co; bu; te; db; pu; de;}
+  }
+
+  hub  [label="Docker Hub\nniki9937/calculator-devops", fillcolor="#e6f4ea"];
+  mail [label="Email notification\n(success / failure)", fillcolor="#fef7e0"];
+
+  subgraph cluster_c {
+    label="Docker Compose stack  (network: calculator-net)"; fontname="Helvetica-Bold"; fontsize=11; style="rounded"; color="#34a853";
+    ng [label="Nginx :8090\nreverse proxy", fillcolor="#e6f4ea"];
+    c1 [label="calculator #1\n:8080 /actuator/health", fillcolor="#e6f4ea"];
+    c2 [label="calculator #2\n:8080 /actuator/health", fillcolor="#e6f4ea"];
+    ng -> c1; ng -> c2;
+  }
+  user [label="Client\ncurl / browser", shape=ellipse, fillcolor="#ffffff"];
+
+  dev -> gh [label="git push"];
+  gh -> co [label="Poll SCM (H/2)\n/ webhook"];
+  pu -> hub [label="docker push"];
+  hub -> c1 [style=dashed, label="image"];
+  de -> ng [label="up -d"];
+  de -> mail [style=dotted, label="post"];
+  user -> ng; {rank=same; dev; gh;} {rank=same; hub; mail;}
+}
