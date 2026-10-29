@@ -89,4 +89,12 @@ class CalculatorControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("UP"));
     }
+
+    @Test
+    void actuatorInfoReportsAppMetadata() throws Exception {
+        mvc.perform(get("/actuator/info"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.app.name").value("calculator-devops"))
+                .andExpect(jsonPath("$.app.build").value("local"));
+    }
 }
