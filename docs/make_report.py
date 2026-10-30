@@ -187,19 +187,44 @@ s.append(Paragraph(
 # ---- Appendix: screenshots ----
 s.append(PageBreak())
 s.append(Paragraph("Appendix - Screenshots", h1))
-for name, caption in [
-    ("jenkins-console.png", "Figure 2 - Jenkins build #1 of <i>calculator-devops</i> (started by an SCM change): all "
-                            "stages ran, 29 tests passed, both tags pushed, stack healthy, email sent, "
-                            "<b>Finished: SUCCESS</b>."),
-    ("email.png", "Figure 3 - Build-status email sent by Jenkins to the student's address, captured by the Mailpit SMTP "
-                  "server."),
-    ("docker-ps.png", "Figure 4 - <font face='Courier'>docker ps</font> after the pipeline deploy: two API replicas "
-                      "running image tag <i>:1</i> and Nginx, all healthy."),
-    ("api.png", "Figure 5 - Sample API responses through Nginx, including the 400 error bodies."),
-    ("dockerhub.png", "Figure 6 - Public Docker Hub repository with the tags pushed by Jenkins."),
-    ("gitlog.png", "Figure 7 - Commit history with feature branches and merged pull requests."),
-]:
-    s.append(KeepTogether([img(name, max_h=9.5 * cm), Paragraph(caption, cap)]))
+sections = [
+    ("A. Jenkins pipeline", [
+        ("jenkins-graph.png", "Figure 2 - Pipeline Overview of build #3: every stage (Checkout, Build, Test, Docker "
+                              "Build, Push, Deploy, Post Actions) is green; the run took 53 s and ended by emailing "
+                              "the result."),
+        ("jenkins-job.png", "Figure 3 - The <i>calculator-devops</i> job: builds #1-#3 all successful (each one "
+                            "started by an SCM change), with the test-result trend at 29 passing tests."),
+        ("jenkins-tests.png", "Figure 4 - JUnit results published by the Test stage: 29/29 passing across the "
+                              "controller (MockMvc), model and service packages."),
+        ("jenkins-console.png", "Figure 5 - End of the console log for build #3: health check and smoke test through "
+                                "Nginx, email sent, <b>Finished: SUCCESS</b>."),
+        ("jenkins-credentials.png", "Figure 6 - The Docker Hub login is kept in the Jenkins credentials store "
+                                    "(<i>dockerhub-credentials</i>), not in the repository."),
+    ]),
+    ("B. Email notification", [
+        ("ui-mailpit.png", "Figure 7 - One notification per build, all addressed to the student's email."),
+        ("ui-email.png", "Figure 8 - The success email for build #3 with the commit, image tag and deployment URL."),
+    ]),
+    ("C. Running deployment", [
+        ("docker-ps.png", "Figure 9 - <font face='Courier'>docker ps</font>: two API replicas on image tag <i>:3</i> "
+                          "and Nginx, all healthy. Nginx has been up longer than the API containers because a "
+                          "redeploy recreates only the containers whose image changed."),
+        ("ui-api.png", "Figure 10 - Live responses through Nginx on :8090 in the browser: add, divide by zero "
+                       "(HTTP 400 error body) and <i>/actuator/health</i>."),
+    ]),
+    ("D. Docker Hub and GitHub", [
+        ("ui-dockerhub.png", "Figure 11 - Public Docker Hub repository <i>niki9937/calculator-devops</i> with the "
+                             "tags pushed by Jenkins."),
+        ("ui-prs.png", "Figure 12 - Pull requests: feature branches merged through PRs #1-#3; PR #4 is kept for the "
+                       "live demo."),
+        ("gitlog.png", "Figure 13 - Commit history showing the feature branches and merge commits."),
+        ("ui-github.png", "Figure 14 - The public GitHub repository."),
+    ]),
+]
+for heading, figures in sections:
+    s.append(Paragraph(heading, h1))
+    for name, caption in figures:
+        s.append(KeepTogether([img(name, max_h=9.5 * cm), Paragraph(caption, cap)]))
 
 doc = SimpleDocTemplate(out, pagesize=A4, leftMargin=1.8 * cm, rightMargin=1.8 * cm, topMargin=1.5 * cm,
                         bottomMargin=1.7 * cm, title="SPE Mini-Project Report - Calculator CI/CD",
